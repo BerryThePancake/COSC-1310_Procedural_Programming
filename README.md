@@ -2,5 +2,6 @@
 
 ## Austin Riha
 ## Anthony Skidmore
+## Jackson Bedenbaugh
 
 The beginning of the Class Project
