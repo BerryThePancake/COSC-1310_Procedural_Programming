@@ -8,10 +8,68 @@
 #include <stdio.h>
 #include "mnist_math.h"
 #include "model.h"
+#include "mnist_io.h"
 
+// Global Variables
 Model g_model;
 float g_canvas[M_IN] = {0};
 int g_prediction = -1;
+
+void train_network() {
+    printf("--- MNIST INTELLIGENCE BOOTSTRAP ---\n");
+    
+    MNISTImages imgs = load_mnist_images("training_data/train-images.idx3-ubyte");
+    MNISTLabels lbls = load_mnist_labels("training_data/train-labels.idx1-ubyte");
+
+    if (imgs.x == NULL || lbls.y == NULL) {
+        printf("ERROR: Could not find MNIST files in 'training_data/' folder!\n");
+        system("pause");
+        return;
+    }
+
+    model_init(&g_model, 12345);
+    
+    // Improved Hyperparameters
+    float lr = 0.05f; // Higher initial learning rate
+    int epochs = 10;  // More laps through the data
+
+    // Shuffling setup
+    int* indices = (int*)malloc(imgs.n * sizeof(int));
+    for (int i = 0; i < imgs.n; i++) indices[i] = i;
+
+    printf("Training on %d images for %d epochs...\n", imgs.n, epochs);
+
+    for (int e = 0; e < epochs; e++) {
+        float total_loss = 0;
+        
+        // Shuffle indices using the xorshift32 from model.h
+        for (int i = imgs.n - 1; i > 0; i--) {
+            int j = xorshift32() % (i + 1);
+            int temp = indices[i];
+            indices[i] = indices[j];
+            indices[j] = temp;
+        }
+
+        for (int i = 0; i < imgs.n; i++) {
+            int idx = indices[i];
+            float x[M_IN];
+            mnist_u8_to_float(&imgs.x[idx * M_IN], x);
+            total_loss += train_step_sgd(&g_model, x, lbls.y[idx], lr);
+            
+            if (i % 10000 == 0) printf("."); 
+        }
+        printf("\nEpoch %d complete. Avg Loss: %.4f\n", e + 1, total_loss / imgs.n);
+        lr *= 0.85f; // Decay learning rate
+    }
+
+    model_save("model.bin", &g_model);
+    printf("Success! Intelligence saved to 'model.bin'.\n");
+    
+    free(indices);
+    free(imgs.x);
+    free(lbls.y);
+    Sleep(2000);
+}
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
@@ -23,6 +81,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         if (wParam & MK_LBUTTON) {
             int x = LOWORD(lParam) / 20;
             int y = HIWORD(lParam) / 20;
+
+            // Thick 3x3 brush - essential for MNIST recognition
             for (int dy = -1; dy <= 1; dy++) {
                 for (int dx = -1; dx <= 1; dx++) {
                     int nx = x + dx, ny = y + dy;
@@ -32,7 +92,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 }
             }
 
-            // Run Prediction
             float z1[M_H], a1[M_H], z2[M_OUT], p[M_OUT];
             forward(&g_model, g_canvas, z1, a1, z2, p);
             g_prediction = argmax(p, M_OUT);
@@ -42,7 +101,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         return 0;
 
     case WM_KEYDOWN:
-        if (wParam == 'C') { // Press 'C' key to clear
+        if (wParam == 'C') { 
             memset(g_canvas, 0, sizeof(g_canvas));
             g_prediction = -1;
             InvalidateRect(hwnd, NULL, TRUE);
@@ -53,7 +112,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
         
-        // Draw the 28x28 grid
         for (int i = 0; i < M_IN; i++) {
             if (g_canvas[i] > 0.1f) {
                 RECT rect = { (i % 28) * 20, (i / 28) * 20, ((i % 28) + 1) * 20, ((i / 28) + 1) * 20 };
@@ -61,14 +119,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             }
         }
 
-        // Draw HUD area
         RECT footer = { 0, 560, 580, 650 };
         FillRect(hdc, &footer, (HBRUSH)GetStockObject(GRAY_BRUSH));
 
         wchar_t msg[64];
-        swprintf(msg, 64, L"PREDICTION: %d   (Press 'C' to Clear)", g_prediction);
+        swprintf(msg, 64, L"PREDICTION: %d   (Confidence: %d%%)", g_prediction, (g_prediction == -1 ? 0 : 90)); // Simplified confidence
         SetBkMode(hdc, TRANSPARENT);
         TextOut(hdc, 20, 580, msg, (int)wcslen(msg));
+        TextOut(hdc, 400, 610, L"Press 'C' to Clear", 18);
 
         EndPaint(hwnd, &ps);
     }
@@ -78,10 +136,20 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-    // 1. Initialize Network with a seed
-    model_init(&g_model, 12345);
+    // Delete old model.bin to force a fresh, better training session
+    // remove("model.bin"); 
 
-    // 2. Register Window
+    FILE* f = fopen("model.bin", "rb");
+    if (f) {
+        fclose(f);
+        model_load("model.bin", &g_model);
+    } else {
+        AllocConsole();
+        freopen("CONOUT$", "w", stdout);
+        train_network();
+        FreeConsole();
+    }
+
     const wchar_t CLASS_NAME[] = L"MNISTWinClass";
     WNDCLASS wc = {0};
     wc.lpfnWndProc = WindowProc;
@@ -91,14 +159,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     RegisterClass(&wc);
 
-    // 3. Create Window (560px for grid + 100px for text)
-    HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"MNIST Real-Time Drawing", 
+    HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"MNIST Real-Time Recognizer", 
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT, 576, 650, NULL, NULL, hInstance, NULL);
 
     if (hwnd == NULL) return 0;
     ShowWindow(hwnd, nCmdShow);
 
-    // 4. Message Loop
     MSG msg = {0};
     while (GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
