@@ -10,7 +10,6 @@
 #include "model.h"
 #include "mnist_io.h"
 
-// Global Variables
 Model g_model;
 float g_canvas[M_IN] = {0};
 int g_prediction = -1;
@@ -29,11 +28,10 @@ void train_network() {
 
     model_init(&g_model, 12345);
     
-    // Improved Hyperparameters
-    float lr = 0.05f; // Higher initial learning rate
-    int epochs = 10;  // More laps through the data
+    float lr = 0.05f;
+    int epochs = 10;
 
-    // Shuffling setup
+    // Shuffling
     int* indices = (int*)malloc(imgs.n * sizeof(int));
     for (int i = 0; i < imgs.n; i++) indices[i] = i;
 
@@ -42,7 +40,7 @@ void train_network() {
     for (int e = 0; e < epochs; e++) {
         float total_loss = 0;
         
-        // Shuffle indices using the xorshift32 from model.h
+        // Shuffle indices
         for (int i = imgs.n - 1; i > 0; i--) {
             int j = xorshift32() % (i + 1);
             int temp = indices[i];
@@ -82,7 +80,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             int x = LOWORD(lParam) / 20;
             int y = HIWORD(lParam) / 20;
 
-            // Thick 3x3 brush - essential for MNIST recognition
+            // Thick 3x3 brush
             for (int dy = -1; dy <= 1; dy++) {
                 for (int dx = -1; dx <= 1; dx++) {
                     int nx = x + dx, ny = y + dy;
@@ -136,8 +134,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-    // Delete old model.bin to force a fresh, better training session
-    // remove("model.bin"); 
+    // remove("model.bin"); so model.bin can be refreshed
 
     FILE* f = fopen("model.bin", "rb");
     if (f) {

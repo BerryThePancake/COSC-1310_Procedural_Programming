@@ -9,7 +9,6 @@
 
 static uint32_t rng_state = 0x12345678u;
 
-// Removed 'static' to match model.h
 uint32_t xorshift32(void) {
   uint32_t x = rng_state;
   x ^= x << 13; x ^= x >> 17; x ^= x << 5;

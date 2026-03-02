@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-// Renamed to avoid Windows.h conflicts
 #define M_IN 784
 #define M_H  128
 #define M_OUT 10

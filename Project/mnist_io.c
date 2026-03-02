@@ -40,7 +40,6 @@ MNISTLabels load_mnist_labels(const char* path) {
 
 void mnist_u8_to_float(const uint8_t* src, float dst[M_IN]) {
     for (int i = 0; i < M_IN; i++) {
-        // Normalizing 0-255 to 0.0-1.0
         dst[i] = src[i] / 255.0f;
     }
 }
