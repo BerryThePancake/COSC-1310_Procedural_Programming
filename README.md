@@ -7,13 +7,13 @@ no frameworks, no libraries, just arrays and loops.
 
 ## What Is This?
 
-Imagine you write the number "7" on a piece of paper. You know it's a 7 because your brain has seen thousands of 7s in your lifetime and learned what they look like. This project does the same thing — but with a computer program written in C.
+Imagine you write the number "7" on a piece of paper. You know it's a 7 because your brain has seen thousands of 7s in your lifetime and learned what they look like. 
+This project does the same thing but with an algorithm written in C.
 
-The program looks at 60,000 pictures of handwritten numbers (0 through 9), studies them, and teaches itself to recognize which number is which. After about 2 minutes of training, it can look at a brand new handwritten number it has never seen before and correctly guess what it is about 97 out of 100 times.
+The program looks at 60,000 pictures of handwritten numbers (0 through 9), studies them, and teaches itself to recognize which number is which. 
+After some training, it can look at a brand new handwritten number it has never seen before and correctly guess what it is we then 'test' the program by giving it 10000 images to guess.
 
 The cool part? The entire thing is built from scratch. No pre-built AI tools, no machine learning libraries, no shortcuts. Just basic math operations (addition, multiplication, and a few simple functions) written in plain C code.
-
-There's also a drawing app where you can draw a number with your mouse and watch the program guess what you drew in real time.
 
 ---
 
@@ -97,14 +97,14 @@ Epoch 15 | Accuracy: 97.75%
 Epoch 20 | Accuracy: 97.80%
 ```
 
-After just one pass through the data, it's already right 94% of the time. By epoch 20, it's nearing 98%. That means out of 10,000 test images it has never seen before, it only gets about 200 wrong.
+After just one pass through the data, it's already right 94% of the time. By epoch 20, it's nearing 98%.
 
 ### By the Numbers
 
 With 60,000 training images, 20 epochs, and a batch size of 32:
 - **1,875 batches per epoch** (60,000 ÷ 32)
 - **37,500 total weight updates** (1,875 × 20)
-- **109,386 weights adjusted per update**
+- **109,386 weights adjusted per update** (109,386 × 37,500)
 - That's over **4 billion** individual math operations during training
 
 And it all runs in about 2 minutes on a regular computer.
@@ -133,7 +133,7 @@ The entire neural network fits in a single file called `nn.c`. Here's what each 
 
 ### What You Need
 
-- A C compiler (comes pre-installed on most Linux and Mac systems; on Windows you need MinGW or Visual Studio)
+- A C compiler
 - The MNIST dataset (free download, about 55 MB)
 
 ### Step 1 — Get the Training Data
@@ -146,13 +146,10 @@ The files you need:
 - `t10k-images-idx3-ubyte.gz` — 10,000 test images
 - `t10k-labels-idx1-ubyte.gz` — labels for the test images
 
-Unzip all 4 files (on Windows use 7-Zip, on Linux/Mac use `gunzip *.gz`), then put them in a folder called `data` next to your code:
-
 ```
 your_project/
 ├── nn.c                            — the neural network
-├── draw.c                          — the drawing app (Linux)
-├── draw_win.c                      — the drawing app (Windows)
+├── draw.c                          — the drawing app 
 └── data/
     ├── train-images.idx3-ubyte     — 47 MB (training images)
     ├── train-labels.idx1-ubyte     — 60 KB (training labels)
@@ -171,17 +168,9 @@ gcc -O2 -o nn nn.c -lm
 
 The first line compiles the code (translates it from human-readable text into a program the computer can run). The second line runs it. You'll see accuracy improving with each epoch. When it finishes (about 2 minutes), it saves the trained weights to a file called `weights.bin`.
 
-**Important:** That's a capital letter O in `-O2`, not the number zero.
-
 ### Step 3 — Run the Drawing App
 
-**On Linux:**
-```bash
-gcc -O2 -o draw draw.c -lX11 -lm
-./draw
-```
-
-**On Windows (with MinGW):**
+**On Windows:**
 ```bash
 gcc -O2 -o draw.exe draw_win.c -lgdi32 -lm -mwindows
 ./draw.exe
@@ -206,7 +195,9 @@ A window pops up with a black canvas. Draw a digit with your mouse, press **G** 
 
 ## The Drawing App
 
-After training, the drawing app lets you test the network yourself. It loads the trained weights and runs the same math on your drawing that it used during training.
+After training, the drawing app lets you test the network yourself. It loads the trained weights (from the file weights.bin) and runs the same math on your drawing that it used during training. 
+Except that all the hard resource-intensive processes are just loaded in instead of calculated
+Therefore we wont have much stuttering when we are trying to test the algorithm!
 
 ### Controls
 
@@ -251,6 +242,6 @@ Great question. The network is tested on 10,000 images it has never seen during 
 
 ## Built By
 
-**Austin** — Procedural Programming, Electrical Engineering
+**Austin** — Procedural Programming, Electrical Engineering & Mechanical Engineering
 
 Neural network trained on the [MNIST dataset](https://yann.lecun.com/exdb/mnist/) by Yann LeCun, Corinna Cortes, and Christopher Burges.
