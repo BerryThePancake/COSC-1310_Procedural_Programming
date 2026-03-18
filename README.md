@@ -242,6 +242,6 @@ Great question. The network is tested on 10,000 images it has never seen during 
 
 ## Built By
 
-**Austin** — Procedural Programming, Electrical Engineering & Mechanical Engineering
+**Austin** , **Jackson**, and **Anthony**— Procedural Programming, Electrical Engineering & Mechanical Engineering
 
 Neural network trained on the [MNIST dataset](https://yann.lecun.com/exdb/mnist/) by Yann LeCun, Corinna Cortes, and Christopher Burges.
