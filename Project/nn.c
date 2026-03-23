@@ -99,11 +99,12 @@ void forward(double *input) {
 // Starting from the loss, work backwards using the chain rule
 // to figure out how much each weight contributed to the error.
  
+
+// output layer gradient
 void backward(double *input, int label) {
-    // output layer gradient
     double dz2[OUTPUT];
     for (int i = 0; i < OUTPUT; i++) {
-        dz2[i] = a2[i] - (i == label ? 1.0 : 0.0);
+        dz2[i] = a2[i] - (i == label ? 1.0 : 0.0); // this is the error calculation; calculated implicitly
     }
 
     // gradients for weight 2 and bias 2
@@ -224,7 +225,7 @@ int main(void) {
 
     double lr = 0.1; // how fast a neuron can change
     int batch_size = 32; // how many images the training bot has to take in before changing weights
-    int epochs = 20; // the number of times the network has to run through all the training data and is then shuffled and starts again
+    int epochs = 5; // the number of times the network has to run through all the training data and is then shuffled and starts again
 
     // so in total... 
     // the NN has is being trained against
