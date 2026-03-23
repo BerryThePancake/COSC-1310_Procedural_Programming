@@ -64,16 +64,16 @@ void init_weights(void) {
 //      output = softmax(W2 * hidden + b2)
 // 
 void forward(double *input) {
-    /* Hidden layer: z1 = W1*input + b1, then ReLU */
+    // hidden layer is z1 = W1*input + b1, then ReLU
     for (int i = 0; i < HIDDEN; i++) {
         z1[i] = b1[i];
         for (int j = 0; j < INPUT; j++) {
             z1[i] += W1[i][j] * input[j];
         }
-        a1[i] = z1[i] > 0.0 ? z1[i] : 0.0;  /* ReLU */
+        a1[i] = z1[i] > 0.0 ? z1[i] : 0.0; //relu part.. basically checking if z1[i] is bigger than 0. if not then it makes it 0
     }
 
-    /* Output layer: z2 = W2*hidden + b2, then softmax */
+    // output layer is z2 = W2*hidden + b2, then softmax
     double max_z = -1e30;
     for (int i = 0; i < OUTPUT; i++) {
         z2[i] = b2[i];
@@ -83,7 +83,7 @@ void forward(double *input) {
         if (z2[i] > max_z) max_z = z2[i];
     }
 
-    /* Softmax with numerical stability (subtract max first) */
+    // Softmax with numerical stability (subtract max first) 
     double sum = 0.0;
     for (int i = 0; i < OUTPUT; i++) {
         a2[i] = exp(z2[i] - max_z);
@@ -121,7 +121,7 @@ void backward(double *input, int label) {
         for (int k = 0; k < OUTPUT; k++) {
             da += W2[k][i] * dz2[k];
         }
-        dz1[i] = da * (z1[i] > 0.0 ? 1.0 : 0.0);  // ReLU
+        dz1[i] = da * (z1[i] > 0.0 ? 1.0 : 0.0);  // ReLU again
     }
 
     // gradients for weight1 and bias1
@@ -222,9 +222,9 @@ int main(void) {
     // these variables are the control panel
     // we have learning rate, batch size, and epochs
 
-    double lr = 0.01; // how fast a neuron can change
-    int batch_size = 8; // how many images the training bot has to take in before changing weights
-    int epochs = 5; // the number of times the network has to run through all the training data and is then shuffled and starts again
+    double lr = 0.1; // how fast a neuron can change
+    int batch_size = 32; // how many images the training bot has to take in before changing weights
+    int epochs = 20; // the number of times the network has to run through all the training data and is then shuffled and starts again
 
     // so in total... 
     // the NN has is being trained against
