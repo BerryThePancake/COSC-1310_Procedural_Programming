@@ -3,6 +3,9 @@
 #include <math.h>
 #include <time.h>
 
+/*
+gcc -O2 -o nn nn.c -lm
+*/
 
 // Network size
 #define INPUT   784  // We did 784 because for 1 input per pixel per image
@@ -224,12 +227,12 @@ int main(void) {
     // we have learning rate, batch size, and epochs
 
     double lr = 0.1; // how fast a neuron can change
-    int batch_size = 16; // how many images the training bot has to take in before changing weights
-    int epochs = 10; // the number of times the network has to run through all the training data and is then shuffled and starts again
+    int batch_size = 32; // how many images the training bot has to take in before changing weights
+    int epochs = 20; // the number of times the network has to run through all the training data and is then shuffled and starts again
 
     // so in total... 
     // the NN has is being trained against
-    // 60000 images * 10 rounds / 32 images per batch
+    // 60000 images * 20 rounds / 32 images per batch
     // = 18750 weight adjustments per neuron!
     // that is a grand total of (128 + 10) neurons * 18750 weight adjustments = 2,587,500 weight changes in total
 
@@ -274,4 +277,3 @@ int main(void) {
     printf("");
     return 0;
 }
-
