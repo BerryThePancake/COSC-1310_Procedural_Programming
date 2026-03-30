@@ -4,7 +4,13 @@
 #include <time.h>
 
 /*
+Run these commands to compile and run the training and drawing programs:
+
 gcc -O2 -o nn nn.c -lm
+./nn
+gcc -O2 -o draw draw.c -lgdi32 -lm -mwindows
+./draw
+
 */
 
 // Network size

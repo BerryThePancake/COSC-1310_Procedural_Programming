@@ -1,5 +1,9 @@
 
 //  gcc -O2 -o draw draw.c -lgdi32 -lm -mwindows
+// just a preface... this file isnt apart of the project.. 
+// it was just to have an interactive part for a basic visualization
+// most of this was written by AI so I could focus more on the NN part
+// again.. this file IS NOT apart of the project :)
 
 #ifndef UNICODE
 #define UNICODE
@@ -209,14 +213,6 @@ static void paint_window(HWND hwnd) {
     }
     else if (predicted_digit >= 0) {
         wchar_t buf[64];
-
-        /*
-        // the big number that pops up when you guess
-        SelectObject(hdc, big_font);
-        SetTextColor(hdc, RGB(30, 110, 210));
-        wsprintfW(buf, L"%d", predicted_digit);
-        TextOutW(hdc, px + 30, MARGIN + 100, buf, 1);
-        */
 
         // how "confident" the model is in its guess.. 
         SelectObject(hdc, normal_font);
